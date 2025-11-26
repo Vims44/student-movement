@@ -23,11 +23,10 @@ namespace Карпова_КП_РКИС_23ИСП1
             FillTableOrders();
         }
 
-
+        // Загрузка формы
         private void FormOrders_Load(object sender, EventArgs e)
         {
-            // Здесь можно инициализировать данные формы
-            // Например, заполнение таблицы приказов
+            this.WindowState = FormWindowState.Maximized;
             FillTableOrders();
         }
 
@@ -93,6 +92,48 @@ namespace Карпова_КП_РКИС_23ИСП1
                     MessageBox.Show(ex.Message, "Невозможно удалить", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+        }
+
+        private void dataGridViewOrders_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridViewOrders.CurrentRow == null)
+            {
+                dataGridViewStud.DataSource = null;
+                dataGridViewOrderStud.DataSource = null;
+                return;
+            }
+            long id = Convert.ToInt64(dataGridViewOrders.CurrentRow.Cells["Идентификатор приказа"].Value);
+            FillTableStudents(id);
+            // Очистить таблицу приказов студента при смене приказа
+            dataGridViewOrderStud.DataSource = null;
+        }
+
+        // Метод заполнения таблицы студентов по приказу
+        private void FillTableStudents(long orderId)
+        {
+            DataTable dt = controller.GetStudentsByOrder(orderId);
+            dataGridViewStud.DataSource = dt;
+            toolStripOrders.Text = $"Количество студентов: {dt.Rows.Count}";
+        }
+
+
+        private void dataGridViewStud_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridViewStud.CurrentRow == null)
+            {
+                dataGridViewOrderStud.DataSource = null;
+                return;
+            }
+            long studentId = Convert.ToInt64(dataGridViewStud.CurrentRow.Cells["Номер"].Value);
+            FillTableStudentOrders(studentId);
+        }
+
+        // Метод заполнения таблицы приказов по студенту
+        private void FillTableStudentOrders(long studentId)
+        {
+            DataTable dt = controller.GetOrdersByStudent(studentId);
+            dataGridViewOrderStud.DataSource = dt;
+            toolStripOrders.Text = $"Количество приказов: {dt.Rows.Count}";
         }
     }
 }

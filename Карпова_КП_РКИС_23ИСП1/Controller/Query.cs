@@ -412,6 +412,60 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             string sql = "DELETE FROM Orders WHERE Order_ID = @id";
             ExecuteNonQuery(sql, "@id", orderId);
         }
+
+
+        // Получить студентов по идентификатору приказа
+        public DataTable GetStudentsByOrder(long orderId)
+        {
+            buferTable = new DataTable();
+            string query = $@"SELECT
+                                s.Nom_stud AS 'Номер',
+                                s.FIO AS 'ФИО',
+                                s.Data_rojd AS 'Дата рождения',
+                                ({AgeExpression}) AS 'Возраст',
+                                s.Adress AS 'Адрес',
+                                s.Telefon AS 'Телефон',
+                                s.Shifr_gr AS 'Группа',
+                                s.Nazv_statusa AS 'Статус',
+                                s.Form_opl AS 'Форма оплаты',
+                                s.Sred_ball_attes AS 'Средний балл'
+                            FROM Student s
+                            INNER JOIN Student_movement sm ON s.Nom_stud = sm.Student_ID
+                            WHERE sm.Order_ID = @orderId
+                            ORDER BY s.FIO";
+            using (var cmd = new SQLiteCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+                dataAdapter = new SQLiteDataAdapter(cmd);
+                dataAdapter.Fill(buferTable);
+            }
+            return buferTable;
+        }
+
+
+        // Получить приказы по идентификатору студента
+        public DataTable GetOrdersByStudent(long studentId)
+        {
+            buferTable = new DataTable();
+            string query = @"SELECT
+                                o.Order_ID AS 'Идентификатор приказа',
+                                o.Order_Date AS 'Дата приказа',
+                                o.Order_Type AS 'Тип приказа',
+                                o.Comment AS 'Комментарий',
+                                sm.Order_Action AS 'Действие по приказу',
+                                sm.Order_Effective_Date AS 'Дата вступления приказа'
+                            FROM Orders o
+                            INNER JOIN Student_movement sm ON o.Order_ID = sm.Order_ID
+                            WHERE sm.Student_ID = @studentId
+                            ORDER BY o.Order_Date DESC";
+            using (var cmd = new SQLiteCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("@studentId", studentId);
+                dataAdapter = new SQLiteDataAdapter(cmd);
+                dataAdapter.Fill(buferTable);
+            }
+            return buferTable;
+        }
     }
 }
 
