@@ -221,9 +221,11 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
 
         // Метод для выполнения INSERT/UPDATE/DELETE
         public long ExecuteNonQuery(string sql, string param1Name = "", object param1Value = null,
-                                                     string param2Name = "", object param2Value = null,
-                                                     string param3Name = "", object param3Value = null,
-                                                     string param4Name = "", object param4Value = null)
+                             string param2Name = "", object param2Value = null,
+                             string param3Name = "", object param3Value = null,
+                             string param4Name = "", object param4Value = null,
+                             string param5Name = "", object param5Value = null,
+                             string param6Name = "", object param6Value = null)
         {
             using (SQLiteCommand cmd = new SQLiteCommand(sql, connection))
             {
@@ -231,6 +233,8 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 if (!string.IsNullOrEmpty(param2Name)) cmd.Parameters.AddWithValue(param2Name, param2Value);
                 if (!string.IsNullOrEmpty(param3Name)) cmd.Parameters.AddWithValue(param3Name, param3Value);
                 if (!string.IsNullOrEmpty(param4Name)) cmd.Parameters.AddWithValue(param4Name, param4Value);
+                if (!string.IsNullOrEmpty(param5Name)) cmd.Parameters.AddWithValue(param5Name, param5Value);
+                if (!string.IsNullOrEmpty(param6Name)) cmd.Parameters.AddWithValue(param6Name, param6Value);
                 cmd.ExecuteNonQuery();
                 return connection.LastInsertRowId;
             }
@@ -371,12 +375,12 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
         {
             string sql = @"INSERT INTO Orders (Order_Type, Order_Date, Comment)
                    VALUES (@type, @date, @comment)";
+
             return ExecuteNonQuery(sql,
                 "@type", orderType,
                 "@date", orderDate.ToString("yyyy-MM-dd"),
                 "@comment", string.IsNullOrWhiteSpace(comment) ? (object)DBNull.Value : comment);
         }
-
         // Редактирование существующего приказа
         public void UpdateOrder(long orderId, string orderType, DateTime orderDate, string comment = "")
         {

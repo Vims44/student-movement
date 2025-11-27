@@ -272,5 +272,104 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             e.Handled = true;
         }
+
+        // Кнопка выпуск
+        private void buttonGraduate_Click(object sender, EventArgs e)
+        {
+            // Проверка выделения
+            if (dataGridViewStudents.SelectedRows.Count == 0 && dataGridViewStudents.SelectedCells.Count == 0)
+            {
+                MessageBox.Show("Выделите хотя бы одного студента!", "Внимание",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Собираем ID студентов
+            var selectedIds = new HashSet<long>();
+            foreach (DataGridViewRow row in dataGridViewStudents.SelectedRows)
+                if (long.TryParse(row.Cells["Номер"].Value?.ToString(), out long id))
+                    selectedIds.Add(id);
+
+            foreach (DataGridViewCell cell in dataGridViewStudents.SelectedCells)
+                if (long.TryParse(cell.OwningRow.Cells["Номер"].Value?.ToString(), out long id))
+                    selectedIds.Add(id);
+
+            if (selectedIds.Count == 0)
+            {
+                MessageBox.Show("Не удалось определить номера студентов.");
+                return;
+            }
+
+            // Подтверждение
+            if (MessageBox.Show(
+                $"Вы действительно хотите выпустить {selectedIds.Count} студент(ов)?\n\n" +
+                $"Будет создан приказ об окончании обучения.",
+                "Выпуск студентов",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                DateTime today = DateTime.Today;
+
+                // Автоматический номер приказа
+                string sqlCount = @"SELECT COUNT(*) FROM Orders 
+                            WHERE Order_Type = 'Об окончании обучения' 
+                              AND strftime('%Y', Order_Date) = @year";
+
+                int orderNum;
+                using (var cmd = new SQLiteCommand(sqlCount, controller.Connection)) 
+                {
+                    cmd.Parameters.AddWithValue("@year", today.Year.ToString());
+                    orderNum = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
+                }
+
+                string orderNumber = $"{orderNum}-В"; 
+                string comment = $"Выпуск {selectedIds.Count} студ. Приказ № {orderNumber} от {today:dd.MM.yyyy}";
+
+                // Создаём один приказ
+                long orderId = controller.AddOrder("Об окончании обучения", today, comment);
+
+                // Применяем ко всем студентам
+                foreach (long studentId in selectedIds)
+                {
+                    // 1. Запись в движение
+                    controller.ExecuteNonQuery(
+                        @"INSERT INTO Student_movement (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
+                  VALUES (@stud, @order, 'Окончание обучения', @date)",
+                        "@stud", studentId,
+                        "@order", orderId,
+                        "@date", today.ToString("yyyy-MM-dd"));
+
+                    // 2. Меняем статус
+                    controller.ExecuteNonQuery(
+                        "UPDATE Student SET Nazv_statusa = 'Выпускник' WHERE Nom_stud = @id",
+                        "@id", studentId);
+                }
+
+                // Обновляем таблицы
+                FillTableStudents();
+                FillTableGraduates();
+                FillTableMovement();
+
+                MessageBox.Show(
+                    $"Выпуск завершён успешно!\n\n" +
+                    $"Создан приказ № {orderNumber} от {today:dd.MM.yyyy}\n" +
+                    $"Выпущено студентов: {selectedIds.Count}",
+                    "Готово!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Нажатие на отчёты
+        private void отчётыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormReports formReport = new FormReports();
+            formReport.Show();
+        }
     }
 }

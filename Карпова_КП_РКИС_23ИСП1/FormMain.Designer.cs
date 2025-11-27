@@ -39,6 +39,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.приказыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageStudents = new System.Windows.Forms.TabPage();
+            this.buttonGraduate = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.buttonSearch = new System.Windows.Forms.Button();
             this.textBoxStudFIO = new System.Windows.Forms.TextBox();
@@ -138,6 +139,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.отчётыToolStripMenuItem.Name = "отчётыToolStripMenuItem";
             this.отчётыToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
             this.отчётыToolStripMenuItem.Text = "Отчёты";
+            this.отчётыToolStripMenuItem.Click += new System.EventHandler(this.отчётыToolStripMenuItem_Click);
             // 
             // приказыToolStripMenuItem
             // 
@@ -160,6 +162,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             // tabPageStudents
             // 
+            this.tabPageStudents.Controls.Add(this.buttonGraduate);
             this.tabPageStudents.Controls.Add(this.groupBox1);
             this.tabPageStudents.Controls.Add(this.buttonStatusChange);
             this.tabPageStudents.Controls.Add(this.toolStripStudent);
@@ -171,6 +174,16 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.tabPageStudents.TabIndex = 0;
             this.tabPageStudents.Text = "Студенты";
             this.tabPageStudents.UseVisualStyleBackColor = true;
+            // 
+            // buttonGraduate
+            // 
+            this.buttonGraduate.Location = new System.Drawing.Point(1313, 582);
+            this.buttonGraduate.Name = "buttonGraduate";
+            this.buttonGraduate.Size = new System.Drawing.Size(197, 52);
+            this.buttonGraduate.TabIndex = 25;
+            this.buttonGraduate.Text = "Выпуск";
+            this.buttonGraduate.UseVisualStyleBackColor = true;
+            this.buttonGraduate.Click += new System.EventHandler(this.buttonGraduate_Click);
             // 
             // groupBox1
             // 
@@ -483,16 +496,16 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabelApplicants});
-            this.toolStrip2.Location = new System.Drawing.Point(3, 668);
+            this.toolStrip2.Location = new System.Drawing.Point(3, 662);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(1518, 25);
+            this.toolStrip2.Size = new System.Drawing.Size(1518, 31);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
             // toolStripLabelApplicants
             // 
             this.toolStripLabelApplicants.Name = "toolStripLabelApplicants";
-            this.toolStripLabelApplicants.Size = new System.Drawing.Size(111, 22);
+            this.toolStripLabelApplicants.Size = new System.Drawing.Size(111, 28);
             this.toolStripLabelApplicants.Text = "toolStripLabel1";
             // 
             // dataGridViewApplicants
@@ -595,6 +608,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button buttonClearSearch;
         private System.Windows.Forms.Button buttonSearch;
+        private System.Windows.Forms.Button buttonGraduate;
     }
 }
 
