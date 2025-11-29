@@ -20,10 +20,15 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             InitializeComponent();
             controller = new Query(AppSetting.ConnStr);
+            // Подписываемся на выбор строки в таблице студентов
+            dataGridViewMovement.SelectionChanged += dataGridViewMovement_SelectionChanged;
+
             FillTableStudents();
             FillTableGraduates();
             FillTableApplicants();
-            FillTableMovement();
+            FillTableMovement();           
+            dataGridViewMoveStud.DataSource = null; // Очистка таблицы
+            label5.Text = "Выберите студента";
         }
 
         // Нажатие на справочники-группа в главной форме
@@ -276,7 +281,6 @@ namespace Карпова_КП_РКИС_23ИСП1
         // Кнопка выпуск
         private void buttonGraduate_Click(object sender, EventArgs e)
         {
-            // Проверка выделения
             if (dataGridViewStudents.SelectedRows.Count == 0 && dataGridViewStudents.SelectedCells.Count == 0)
             {
                 MessageBox.Show("Выделите хотя бы одного студента!", "Внимание",
@@ -284,7 +288,6 @@ namespace Карпова_КП_РКИС_23ИСП1
                 return;
             }
 
-            // Собираем ID студентов
             var selectedIds = new HashSet<long>();
             foreach (DataGridViewRow row in dataGridViewStudents.SelectedRows)
                 if (long.TryParse(row.Cells["Номер"].Value?.ToString(), out long id))
@@ -296,72 +299,46 @@ namespace Карпова_КП_РКИС_23ИСП1
 
             if (selectedIds.Count == 0)
             {
-                MessageBox.Show("Не удалось определить номера студентов.");
+                MessageBox.Show("Не удалось определить номера студентов.", "Ошибка",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            // Подтверждение
-            if (MessageBox.Show(
-                $"Вы действительно хотите выпустить {selectedIds.Count} студент(ов)?\n\n" +
-                $"Будет создан приказ об окончании обучения.",
-                "Выпуск студентов",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question) != DialogResult.Yes)
-                return;
 
             try
             {
                 DateTime today = DateTime.Today;
 
-                // Автоматический номер приказа
-                string sqlCount = @"SELECT COUNT(*) FROM Orders 
-                            WHERE Order_Type = 'Об окончании обучения' 
-                              AND strftime('%Y', Order_Date) = @year";
+                var result = controller.GraduateStudents(selectedIds, today);
 
-                int orderNum;
-                using (var cmd = new SQLiteCommand(sqlCount, controller.Connection)) 
-                {
-                    cmd.Parameters.AddWithValue("@year", today.Year.ToString());
-                    orderNum = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
-                }
-
-                string orderNumber = $"{orderNum}-В"; 
-                string comment = $"Выпуск {selectedIds.Count} студ. Приказ № {orderNumber} от {today:dd.MM.yyyy}";
-
-                // Создаём один приказ
-                long orderId = controller.AddOrder("Об окончании обучения", today, comment);
-
-                // Применяем ко всем студентам
-                foreach (long studentId in selectedIds)
-                {
-                    // 1. Запись в движение
-                    controller.ExecuteNonQuery(
-                        @"INSERT INTO Student_movement (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
-                  VALUES (@stud, @order, 'Окончание обучения', @date)",
-                        "@stud", studentId,
-                        "@order", orderId,
-                        "@date", today.ToString("yyyy-MM-dd"));
-
-                    // 2. Меняем статус
-                    controller.ExecuteNonQuery(
-                        "UPDATE Student SET Nazv_statusa = 'Выпускник' WHERE Nom_stud = @id",
-                        "@id", studentId);
-                }
-
-                // Обновляем таблицы
                 FillTableStudents();
                 FillTableGraduates();
                 FillTableMovement();
 
+                if (result.Graduated == 0)
+                {
+                    MessageBox.Show(
+                        "Ни один студент не был выпущен.\n\n" +
+                        "Все выделенные студенты уже имеют статус «Выпускник».",
+                        "Действие не требуется",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Номер приказа — берём через метод (гарантированно правильный)
+                int orderNum = controller.GetNextGraduateOrderNumber(today.Year);
+
                 MessageBox.Show(
-                    $"Выпуск завершён успешно!\n\n" +
-                    $"Создан приказ № {orderNumber} от {today:dd.MM.yyyy}\n" +
-                    $"Выпущено студентов: {selectedIds.Count}",
-                    "Готово!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    $"Выпуск успешно завершён!\n\n" +
+                    $"Выпущено студентов: {result.Graduated}\n" +
+                    (result.Skipped > 0 ? $"Пропущено (уже выпускники): {result.Skipped}\n" : "") +
+                    $"Создан приказ № {orderNum}-В от {today:dd.MM.yyyy}",
+                    "Готово!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка при выпуске студентов:\n" + ex.Message,
+                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -370,6 +347,153 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             FormReports formReport = new FormReports();
             formReport.Show();
+        }
+
+        private void dataGridViewMovement_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewMovement.SelectedRows.Count > 0)
+            {
+                var row = dataGridViewMovement.SelectedRows[0];
+
+                string fio = row.Cells["ФИО студента"].Value?.ToString() ?? "Неизвестно";
+                string idStr = row.Cells["Номер студенческого"].Value?.ToString();
+
+                if (long.TryParse(idStr, out long studentId))
+                {
+                    label5.Text = $"Приказы студента: {fio} (№ {studentId})";
+                    DataTable dt = controller.GetAllOrdersByStudent(studentId);
+                    dataGridViewMoveStud.DataSource = dt;
+                }
+                else
+                {
+                    label5.Text = "Ошибка чтения данных";
+                    dataGridViewMoveStud.DataSource = null;
+                }
+            }
+            else
+            {
+                label5.Text = "Выберите запись выше";
+                dataGridViewMoveStud.DataSource = null;
+            }
+        }
+
+        // Кнопка зачислить
+        private void buttonEnroll_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewApplicants.SelectedRows.Count == 0 && dataGridViewApplicants.SelectedCells.Count == 0)
+            {
+                MessageBox.Show("Выделите хотя бы одного абитуриента!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Собираем уникальные ID выделенных абитуриентов
+            var selectedIds = new HashSet<long>();
+            foreach (DataGridViewRow row in dataGridViewApplicants.SelectedRows)
+                if (long.TryParse(row.Cells["Номер"].Value?.ToString(), out long id))
+                    selectedIds.Add(id);
+
+            foreach (DataGridViewCell cell in dataGridViewApplicants.SelectedCells)
+                if (long.TryParse(cell.OwningRow.Cells["Номер"].Value?.ToString(), out long id))
+                    selectedIds.Add(id);
+
+            if (selectedIds.Count == 0)
+            {
+                MessageBox.Show("Не удалось определить номера абитуриентов.", "Ошибка");
+                return;
+            }
+
+            // Фильтруем только со статусом "Подан"
+            var validForEnroll = new List<(long Id, string FIO, string SpecName)>();
+            var skipped = new List<string>();
+
+            foreach (DataGridViewRow row in dataGridViewApplicants.Rows)
+            {
+                if (!selectedIds.Contains(Convert.ToInt64(row.Cells["Номер"].Value ?? 0))) continue;
+
+                string status = row.Cells["Статус"].Value?.ToString() ?? "";
+                string fio = row.Cells["ФИО"].Value?.ToString() ?? "Без имени";
+                string spec = row.Cells["Специальность"].Value?.ToString() ?? "";
+
+                if (status == "Подан")
+                    validForEnroll.Add((Convert.ToInt64(row.Cells["Номер"].Value), fio, spec));
+                else
+                    skipped.Add($"{fio} — статус: {status}");
+            }
+
+            if (validForEnroll.Count == 0)
+            {
+                MessageBox.Show("Нет абитуриентов со статусом «Подан» среди выделенных!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (skipped.Count > 0)
+            {
+                MessageBox.Show("Пропущены студенты со статусом 'Зачислен'", "Пропущено", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (MessageBox.Show($"Зачислить {validForEnroll.Count} абитуриент(ов) на 1 курс?\n\n" +
+                                "Группы будут созданы автоматически.",
+                                "Подтверждение зачисления",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                DateTime today = DateTime.Today;
+                int currentYear = today.Year;
+                string yearPrefix = (currentYear % 100).ToString("D2"); // 25 для 2025
+
+                // Один общий приказ
+                string comment = $"Зачисление {validForEnroll.Count} чел. на обучение ({currentYear} г.)";
+                long orderId = controller.AddOrder("О зачислении на обучение", today, comment);
+
+                using (var transaction = controller.Connection.BeginTransaction())
+                {
+                    foreach (var (appId, fio, specName) in validForEnroll)
+                    {
+                        var appData = controller.GetApplicantForEnroll(appId);
+                        if (appData.Rows.Count == 0) continue;
+                        var dr = appData.Rows[0];
+
+                        string birth = dr["Date_birthday"]?.ToString() ?? "";
+                        string addr = dr["Address"]?.ToString() ?? "";
+                        string phone = dr["Phone"]?.ToString() ?? "";
+                        double avgScore = Convert.ToDouble(dr["Average_score"] ?? 0);
+                        string shifrSpec = dr["Shifr_spec"]?.ToString() ?? "";
+                        string abbreviation = dr["Sokrashenie"]?.ToString()?.Trim().ToUpper() ?? "ИСП";
+
+                        string groupCode = yearPrefix + abbreviation;  
+
+                        controller.EnsureGroupExists(groupCode, currentYear, shifrSpec);
+
+                        long newStudentId = controller.AddStudentFromApplicant(
+                            fio, birth, addr, phone, groupCode, avgScore);
+                        controller.ExecuteNonQuery("UPDATE Statement SET Status = 'Зачислен' WHERE [Number_ applicant] = @id",("@id", appId));
+
+                        controller.ExecuteNonQuery(@"INSERT INTO Student_movement 
+                                                  (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
+                                                  VALUES (@student, @order, 'Зачислен на 1 курс', @date)",
+                                                 ("@student", newStudentId),
+                                                 ("@order", orderId),
+                                                 ("@date", today));
+                    }
+                    transaction.Commit();
+                }
+
+                // Обновляем всё
+                FillTableApplicants();
+                FillTableStudents();
+                FillTableMovement();
+
+                MessageBox.Show($"Зачисление успешно!\n" +
+                                $"Создан приказ о зачислении.\n" +
+                                $"Зачислено студентов: {validForEnroll.Count}",
+                                "Готово!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при зачислении:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

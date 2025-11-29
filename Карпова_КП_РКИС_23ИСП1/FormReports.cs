@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SQLite;
 using Карпова_КП_РКИС_23ИСП1.Controller;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Карпова_КП_РКИС_23ИСП1
 {
@@ -33,23 +34,26 @@ namespace Карпова_КП_РКИС_23ИСП1
 
             string selectedYear = cmbYears.SelectedItem.ToString();
 
-            // 1. Получаем данные из базы
+            // Получаем данные из базы
             DataTable dt = controller.Total(@"
         SELECT 
             Order_Action AS 'Действие',
             COUNT(*) AS 'Количество',
-            MIN(Order_Effective_Date) AS 'Мин. дата',
-            MAX(Order_Effective_Date) AS 'Макс. дата'
+            MIN(Order_Effective_Date) AS 'Начальная дата',
+            MAX(Order_Effective_Date) AS 'Последняя дата'
         FROM Student_movement
         WHERE strftime('%Y', Order_Effective_Date) = '" + selectedYear + @"'
         GROUP BY Order_Action
         ORDER BY COUNT(*) DESC;
     ");
 
-            // 2. Заполняем DataGridView
+            // Заполняем DataGridView
             dataGridViewMoventRep.DataSource = dt;
 
-            // 3. Настраиваем диаграмму
+            // Название диаграммы
+            SetChartTitle(chartMovementReport, $"Движение контингента студентов по действиям за {selectedYear} год");
+
+            // Настраиваем диаграмму
             chartMovementReport.Series.Clear();
             var series = chartMovementReport.Series.Add("Количество");
             series.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column;
@@ -64,7 +68,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             this.WindowState = FormWindowState.Maximized;
 
-            // Заполняем ComboBox годов на основе данных Student_movement
+            // Заполнение ComboBox годов на основе данных Student_movement
             DataTable dtYears = controller.Total(@"SELECT DISTINCT strftime('%Y', Order_Effective_Date) AS Year 
                                            FROM Student_movement 
                                            ORDER BY Year DESC");
@@ -101,7 +105,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             try
             {
-                // Получаем данные: группы и количество студентов
+                // данные группы и количество студентов
                 string sql = @"SELECT 
                         s.Shifr_gr AS 'Группа',
                         COUNT(*) AS 'Количество студентов'
@@ -116,7 +120,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                 chartGroupReport.Series.Clear();
                 chartGroupReport.ChartAreas[0].AxisX.Title = "";
                 chartGroupReport.ChartAreas[0].AxisY.Title = "";
-
+                SetChartTitle(chartGroupReport, "Численность студентов по группам"); // Название
                 var series = chartGroupReport.Series.Add("Студенты");
                 series.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
 
@@ -127,7 +131,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                     series.Points.AddXY(group, count);
                 }
 
-                // Настройка подписей на пироге
+                // Настройка подписей 
                 series.IsValueShownAsLabel = true;
                 series.Label = "#PERCENT{P1}"; // Показывает процент
                 series.LegendText = "#VALX";   // Легенда — название группы
@@ -143,7 +147,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             try
             {
-                // Получаем количество приказов по типам
+                // количество приказов по типам
                 string sql = @"SELECT 
                         Order_Type AS 'Тип приказа',
                         COUNT(*) AS 'Количество приказов'
@@ -158,7 +162,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                 chartOrdersReport.Series.Clear();
                 chartOrdersReport.ChartAreas[0].AxisX.Title = "";
                 chartOrdersReport.ChartAreas[0].AxisY.Title = "";
-
+                SetChartTitle(chartOrdersReport, "Распределение приказов по типам"); // Название
                 var series = chartOrdersReport.Series.Add("Приказы");
                 series.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
 
@@ -169,7 +173,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                     series.Points.AddXY(type, count);
                 }
 
-                // Подписи на пироге
+                // Подписи 
                 series.IsValueShownAsLabel = true;
                 series.Label = "#PERCENT{P1}"; // Процент
                 series.LegendText = "#VALX";   // Легенда — тип приказа
@@ -185,7 +189,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             try
             {
-                // Получаем количество студентов по специальностям
+                // Количество студентов по специальностям
                 string sql = @"
             SELECT sp.Nazvanie AS 'Специальность',
                    COUNT(s.Nom_stud) AS 'Количество студентов'
@@ -202,7 +206,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                 chartStudentsSpeciality.Series.Clear();
                 chartStudentsSpeciality.ChartAreas[0].AxisX.Title = "";
                 chartStudentsSpeciality.ChartAreas[0].AxisY.Title = "";
-
+                SetChartTitle(chartStudentsSpeciality, "Контингент "); // Название
                 var series = chartStudentsSpeciality.Series.Add("Студенты");
                 series.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
 
@@ -213,7 +217,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                     series.Points.AddXY(speciality, count);
                 }
 
-                // Подписи на пироге
+                // Подписи на диаграмме
                 series.IsValueShownAsLabel = true;
                 series.Label = "#PERCENT{P1}"; // Процент
                 series.LegendText = "#VALX";   // Легенда — название специальности
@@ -222,6 +226,31 @@ namespace Карпова_КП_РКИС_23ИСП1
             {
                 MessageBox.Show("Ошибка при загрузке отчёта: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // Запрет на ввод
+        private void cmbYears_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        // УНИВЕРСАЛЬНАЯ ФУНКЦИЯ — ставит ровно ОДИН красивый заголовок сверху
+        private void SetChartTitle(Chart chart, string titleText)
+        {
+            chart.Titles.Clear();
+
+            var title = new Title
+            {
+                Text = titleText,
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(0, 70, 130),
+                Alignment = ContentAlignment.MiddleCenter,
+                Docking = Docking.Top,               // Автоматическое красивое размещение
+                DockedToChartArea = chart.ChartAreas[0].Name,
+                IsDockedInsideChartArea = false      // Заголовок вне области графика
+            };
+
+            chart.Titles.Add(title);
         }
     }
 }

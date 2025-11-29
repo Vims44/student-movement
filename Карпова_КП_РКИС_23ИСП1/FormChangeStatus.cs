@@ -123,18 +123,16 @@ namespace Карпова_КП_РКИС_23ИСП1
                 controller.ExecuteNonQuery(
                     @"INSERT INTO Student_movement (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
                   VALUES (@sid, @oid, @action, @date)",
-                    "@sid", studentId,
-                    "@oid", selectedOrderId,
-                    "@action", newStatus,
-                    "@date", date.ToString("yyyy-MM-dd")
-                );
+                    ("@sid", studentId),
+                    ("@oid", selectedOrderId),
+                    ("@action", newStatus),
+                    ("@date", date.ToString("yyyy-MM-dd")));
 
                 // 2. Обновляем текущий статус студента
                 controller.ExecuteNonQuery(
                     "UPDATE Student SET Nazv_statusa = @status WHERE Nom_stud = @id",
-                    "@status", newStatus,
-                    "@id", studentId
-                );
+                    ("@status", newStatus),
+                    ("@id", studentId));
 
                 MessageBox.Show($"Статус успешно изменён на «{newStatus}»!\nПриказ №{selectedOrderId} применён.",
                                 "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);

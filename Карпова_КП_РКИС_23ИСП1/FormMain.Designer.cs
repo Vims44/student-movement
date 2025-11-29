@@ -73,6 +73,10 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabelApplicants = new System.Windows.Forms.ToolStripLabel();
             this.dataGridViewApplicants = new System.Windows.Forms.DataGridView();
+            this.dataGridViewMoveStud = new System.Windows.Forms.DataGridView();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.buttonEnroll = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageStudents.SuspendLayout();
@@ -88,6 +92,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.tabPageApplicants.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewApplicants)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMoveStud)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -101,14 +106,14 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(9, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1556, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1556, 30);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(67, 24);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(67, 26);
             this.выходToolStripMenuItem.Text = "Выход";
             // 
             // справочникиToolStripMenuItem
@@ -117,34 +122,34 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.группаToolStripMenuItem,
             this.статусToolStripMenuItem});
             this.справочникиToolStripMenuItem.Name = "справочникиToolStripMenuItem";
-            this.справочникиToolStripMenuItem.Size = new System.Drawing.Size(117, 24);
+            this.справочникиToolStripMenuItem.Size = new System.Drawing.Size(117, 26);
             this.справочникиToolStripMenuItem.Text = "Справочники";
             // 
             // группаToolStripMenuItem
             // 
             this.группаToolStripMenuItem.Name = "группаToolStripMenuItem";
-            this.группаToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.группаToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
             this.группаToolStripMenuItem.Text = "Группа";
             this.группаToolStripMenuItem.Click += new System.EventHandler(this.группаToolStripMenuItem_Click);
             // 
             // статусToolStripMenuItem
             // 
             this.статусToolStripMenuItem.Name = "статусToolStripMenuItem";
-            this.статусToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.статусToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
             this.статусToolStripMenuItem.Text = "Статус";
             this.статусToolStripMenuItem.Click += new System.EventHandler(this.статусToolStripMenuItem_Click);
             // 
             // отчётыToolStripMenuItem
             // 
             this.отчётыToolStripMenuItem.Name = "отчётыToolStripMenuItem";
-            this.отчётыToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
+            this.отчётыToolStripMenuItem.Size = new System.Drawing.Size(73, 26);
             this.отчётыToolStripMenuItem.Text = "Отчёты";
             this.отчётыToolStripMenuItem.Click += new System.EventHandler(this.отчётыToolStripMenuItem_Click);
             // 
             // приказыToolStripMenuItem
             // 
             this.приказыToolStripMenuItem.Name = "приказыToolStripMenuItem";
-            this.приказыToolStripMenuItem.Size = new System.Drawing.Size(85, 24);
+            this.приказыToolStripMenuItem.Size = new System.Drawing.Size(85, 26);
             this.приказыToolStripMenuItem.Text = "Приказы";
             this.приказыToolStripMenuItem.Click += new System.EventHandler(this.приказыToolStripMenuItem_Click);
             // 
@@ -396,6 +401,9 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             // tabPageStudentMovement
             // 
+            this.tabPageStudentMovement.Controls.Add(this.label9);
+            this.tabPageStudentMovement.Controls.Add(this.label5);
+            this.tabPageStudentMovement.Controls.Add(this.dataGridViewMoveStud);
             this.tabPageStudentMovement.Controls.Add(this.toolStrip3);
             this.tabPageStudentMovement.Controls.Add(this.dataGridViewMovement);
             this.tabPageStudentMovement.Location = new System.Drawing.Point(4, 29);
@@ -428,13 +436,14 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             this.dataGridViewMovement.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridViewMovement.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewMovement.Location = new System.Drawing.Point(7, 7);
+            this.dataGridViewMovement.Location = new System.Drawing.Point(6, 44);
             this.dataGridViewMovement.Name = "dataGridViewMovement";
             this.dataGridViewMovement.ReadOnly = true;
             this.dataGridViewMovement.RowHeadersWidth = 51;
             this.dataGridViewMovement.RowTemplate.Height = 24;
-            this.dataGridViewMovement.Size = new System.Drawing.Size(1465, 422);
+            this.dataGridViewMovement.Size = new System.Drawing.Size(1497, 317);
             this.dataGridViewMovement.TabIndex = 0;
+            this.dataGridViewMovement.SelectionChanged += new System.EventHandler(this.dataGridViewMovement_SelectionChanged);
             // 
             // tabPageGraduates
             // 
@@ -480,6 +489,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             // tabPageApplicants
             // 
+            this.tabPageApplicants.Controls.Add(this.buttonEnroll);
             this.tabPageApplicants.Controls.Add(this.toolStrip2);
             this.tabPageApplicants.Controls.Add(this.dataGridViewApplicants);
             this.tabPageApplicants.Location = new System.Drawing.Point(4, 29);
@@ -496,16 +506,16 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabelApplicants});
-            this.toolStrip2.Location = new System.Drawing.Point(3, 662);
+            this.toolStrip2.Location = new System.Drawing.Point(3, 668);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(1518, 31);
+            this.toolStrip2.Size = new System.Drawing.Size(1518, 25);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
             // toolStripLabelApplicants
             // 
             this.toolStripLabelApplicants.Name = "toolStripLabelApplicants";
-            this.toolStripLabelApplicants.Size = new System.Drawing.Size(111, 28);
+            this.toolStripLabelApplicants.Size = new System.Drawing.Size(111, 22);
             this.toolStripLabelApplicants.Text = "toolStripLabel1";
             // 
             // dataGridViewApplicants
@@ -519,6 +529,46 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.dataGridViewApplicants.RowTemplate.Height = 24;
             this.dataGridViewApplicants.Size = new System.Drawing.Size(1511, 369);
             this.dataGridViewApplicants.TabIndex = 0;
+            // 
+            // dataGridViewMoveStud
+            // 
+            this.dataGridViewMoveStud.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dataGridViewMoveStud.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewMoveStud.Location = new System.Drawing.Point(7, 387);
+            this.dataGridViewMoveStud.Name = "dataGridViewMoveStud";
+            this.dataGridViewMoveStud.ReadOnly = true;
+            this.dataGridViewMoveStud.RowHeadersWidth = 51;
+            this.dataGridViewMoveStud.RowTemplate.Height = 24;
+            this.dataGridViewMoveStud.Size = new System.Drawing.Size(1497, 278);
+            this.dataGridViewMoveStud.TabIndex = 2;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 364);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 20);
+            this.label5.TabIndex = 3;
+            this.label5.Text = "label5";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(7, 21);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(235, 20);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "Движение всех студентов:";
+            // 
+            // buttonEnroll
+            // 
+            this.buttonEnroll.Location = new System.Drawing.Point(1223, 399);
+            this.buttonEnroll.Name = "buttonEnroll";
+            this.buttonEnroll.Size = new System.Drawing.Size(216, 61);
+            this.buttonEnroll.TabIndex = 2;
+            this.buttonEnroll.Text = "Зачислить";
+            this.buttonEnroll.UseVisualStyleBackColor = true;
+            this.buttonEnroll.Click += new System.EventHandler(this.buttonEnroll_Click);
             // 
             // FormMain
             // 
@@ -559,6 +609,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewApplicants)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMoveStud)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -609,6 +660,10 @@ namespace Карпова_КП_РКИС_23ИСП1
         private System.Windows.Forms.Button buttonClearSearch;
         private System.Windows.Forms.Button buttonSearch;
         private System.Windows.Forms.Button buttonGraduate;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.DataGridView dataGridViewMoveStud;
+        private System.Windows.Forms.Button buttonEnroll;
     }
 }
 

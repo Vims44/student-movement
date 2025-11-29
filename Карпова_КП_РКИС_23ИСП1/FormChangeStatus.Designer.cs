@@ -63,7 +63,6 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.comboBoxStatus.Name = "comboBoxStatus";
             this.comboBoxStatus.Size = new System.Drawing.Size(271, 28);
             this.comboBoxStatus.TabIndex = 1;
-            // this.comboBoxStatus.SelectedIndexChanged += new System.EventHandler(this.buttonCancel_Click);
             this.comboBoxStatus.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.comboBoxStatus_KeyPress);
             // 
             // label2

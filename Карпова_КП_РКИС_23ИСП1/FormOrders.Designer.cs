@@ -38,30 +38,27 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStripOrders = new System.Windows.Forms.ToolStrip();
             this.toolStripLabelOrders = new System.Windows.Forms.ToolStripLabel();
             this.dataGridViewStud = new System.Windows.Forms.DataGridView();
-            this.dataGridViewOrderStud = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOrders)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.toolStripOrders.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStud)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOrderStud)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridViewOrders
             // 
             this.dataGridViewOrders.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridViewOrders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewOrders.Location = new System.Drawing.Point(12, 72);
+            this.dataGridViewOrders.Location = new System.Drawing.Point(11, 54);
             this.dataGridViewOrders.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dataGridViewOrders.Name = "dataGridViewOrders";
             this.dataGridViewOrders.ReadOnly = true;
             this.dataGridViewOrders.RowHeadersWidth = 51;
             this.dataGridViewOrders.RowTemplate.Height = 24;
-            this.dataGridViewOrders.Size = new System.Drawing.Size(891, 273);
+            this.dataGridViewOrders.Size = new System.Drawing.Size(1479, 370);
             this.dataGridViewOrders.TabIndex = 0;
-            this.dataGridViewOrders.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewOrders_CellContentClick);
+            this.dataGridViewOrders.SelectionChanged += new System.EventHandler(this.dataGridViewOrders_SelectionChanged);
             // 
             // menuStrip1
             // 
@@ -128,31 +125,18 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             this.dataGridViewStud.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridViewStud.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewStud.Location = new System.Drawing.Point(12, 393);
+            this.dataGridViewStud.Location = new System.Drawing.Point(8, 469);
             this.dataGridViewStud.Name = "dataGridViewStud";
             this.dataGridViewStud.ReadOnly = true;
             this.dataGridViewStud.RowHeadersWidth = 51;
             this.dataGridViewStud.RowTemplate.Height = 24;
             this.dataGridViewStud.Size = new System.Drawing.Size(891, 250);
             this.dataGridViewStud.TabIndex = 3;
-            this.dataGridViewStud.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewStud_CellContentClick);
-            // 
-            // dataGridViewOrderStud
-            // 
-            this.dataGridViewOrderStud.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dataGridViewOrderStud.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewOrderStud.Location = new System.Drawing.Point(921, 72);
-            this.dataGridViewOrderStud.Name = "dataGridViewOrderStud";
-            this.dataGridViewOrderStud.ReadOnly = true;
-            this.dataGridViewOrderStud.RowHeadersWidth = 51;
-            this.dataGridViewOrderStud.RowTemplate.Height = 24;
-            this.dataGridViewOrderStud.Size = new System.Drawing.Size(608, 273);
-            this.dataGridViewOrderStud.TabIndex = 4;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 48);
+            this.label1.Location = new System.Drawing.Point(12, 30);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 20);
             this.label1.TabIndex = 5;
@@ -161,30 +145,19 @@ namespace Карпова_КП_РКИС_23ИСП1
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 370);
+            this.label2.Location = new System.Drawing.Point(8, 446);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(263, 20);
             this.label2.TabIndex = 6;
             this.label2.Text = "Студенты с данным приказом";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(921, 48);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(271, 20);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Приказы выбранного студента";
             // 
             // FormOrders
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1556, 780);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.dataGridViewOrderStud);
             this.Controls.Add(this.dataGridViewStud);
             this.Controls.Add(this.toolStripOrders);
             this.Controls.Add(this.dataGridViewOrders);
@@ -201,7 +174,6 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStripOrders.ResumeLayout(false);
             this.toolStripOrders.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStud)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOrderStud)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -218,9 +190,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         private System.Windows.Forms.ToolStripMenuItem добавитьПриказToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem редактироватьПриказToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem удалитьПриказToolStripMenuItem;
-        private System.Windows.Forms.DataGridView dataGridViewOrderStud;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
     }
 }

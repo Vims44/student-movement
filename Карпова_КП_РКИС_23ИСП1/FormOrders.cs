@@ -21,6 +21,11 @@ namespace Карпова_КП_РКИС_23ИСП1
             InitializeComponent();
             controller = new Query(AppSetting.ConnStr); // Инициализация
             FillTableOrders();
+
+            // Подписываемся на событие выбора строки
+            this.dataGridViewOrders.SelectionChanged += dataGridViewOrders_SelectionChanged;
+            // Опционально: чтобы при старте ничего не было выбрано
+            this.dataGridViewOrders.ClearSelection();
         }
 
         // Загрузка формы
@@ -94,46 +99,52 @@ namespace Карпова_КП_РКИС_23ИСП1
             }
         }
 
+        // Таблица приказов
         private void dataGridViewOrders_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dataGridViewOrders.CurrentRow == null)
             {
                 dataGridViewStud.DataSource = null;
-                dataGridViewOrderStud.DataSource = null;
                 return;
             }
             long id = Convert.ToInt64(dataGridViewOrders.CurrentRow.Cells["Идентификатор приказа"].Value);
             FillTableStudents(id);
-            // Очистить таблицу приказов студента при смене приказа
-            dataGridViewOrderStud.DataSource = null;
         }
 
-        // Метод заполнения таблицы студентов по приказу
+        private void dataGridViewOrders_SelectionChanged(object sender, EventArgs e)
+        {
+            // Если есть выбранная строка
+            if (dataGridViewOrders.SelectedRows.Count > 0)
+            {
+                // Берём первую (и единственную) выделенную строку
+                DataGridViewRow row = dataGridViewOrders.SelectedRows[0];
+
+                // Проверяем, что ячейка с ID не null (на всякий случай)
+                if (row.Cells["Идентификатор приказа"].Value != null &&
+                    long.TryParse(row.Cells["Идентификатор приказа"].Value.ToString(), out long orderId))
+                {
+                    FillTableStudents(orderId);
+                }
+                else
+                {
+                    dataGridViewStud.DataSource = null;
+                    toolStripOrders.Text = "Количество студентов в приказе: 0";
+                }
+            }
+            else
+            {
+                // Если ничего не выбрано
+                dataGridViewStud.DataSource = null;
+                toolStripOrders.Text = "Количество студентов в приказе: 0";
+            }
+        }
+
+        // Метод заполнения таблицы студентов по выбранному приказу
         private void FillTableStudents(long orderId)
         {
             DataTable dt = controller.GetStudentsByOrder(orderId);
             dataGridViewStud.DataSource = dt;
-            toolStripOrders.Text = $"Количество студентов: {dt.Rows.Count}";
-        }
-
-
-        private void dataGridViewStud_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (dataGridViewStud.CurrentRow == null)
-            {
-                dataGridViewOrderStud.DataSource = null;
-                return;
-            }
-            long studentId = Convert.ToInt64(dataGridViewStud.CurrentRow.Cells["Номер"].Value);
-            FillTableStudentOrders(studentId);
-        }
-
-        // Метод заполнения таблицы приказов по студенту
-        private void FillTableStudentOrders(long studentId)
-        {
-            DataTable dt = controller.GetOrdersByStudent(studentId);
-            dataGridViewOrderStud.DataSource = dt;
-            toolStripOrders.Text = $"Количество приказов: {dt.Rows.Count}";
+            toolStripOrders.Text = $"Количество студентов в приказе: {dt.Rows.Count}";
         }
     }
 }
