@@ -29,6 +29,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormChangeStatus));
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxStatus = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -178,11 +179,11 @@ namespace Карпова_КП_РКИС_23ИСП1
             // 
             // buttonAddOrder
             // 
-            this.buttonAddOrder.Location = new System.Drawing.Point(686, 234);
+            this.buttonAddOrder.Image = ((System.Drawing.Image)(resources.GetObject("buttonAddOrder.Image")));
+            this.buttonAddOrder.Location = new System.Drawing.Point(686, 240);
             this.buttonAddOrder.Name = "buttonAddOrder";
-            this.buttonAddOrder.Size = new System.Drawing.Size(100, 50);
+            this.buttonAddOrder.Size = new System.Drawing.Size(47, 40);
             this.buttonAddOrder.TabIndex = 14;
-            this.buttonAddOrder.Text = "Новый приказ";
             this.buttonAddOrder.UseVisualStyleBackColor = true;
             this.buttonAddOrder.Click += new System.EventHandler(this.buttonAddOrder_Click);
             // 

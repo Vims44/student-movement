@@ -55,7 +55,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             toolStripLabelStudent.Text = $"Количество записей: {dt.Rows.Count}";
         }
 
-        // Метод заполенния таблицы выпускники
+        // Метод заполнения таблицы выпускники
         private void FillTableGraduates(string query = "")
         {
             DataTable dt = controller.Graduate(query);
@@ -153,7 +153,6 @@ namespace Карпова_КП_РКИС_23ИСП1
                     }
                 }
 
-                // 
                 comboBoxCours.Items.Clear();
                 for (int i = 1; i <= 6; i++)
                     comboBoxCours.Items.Add(i.ToString());
@@ -349,20 +348,20 @@ namespace Карпова_КП_РКИС_23ИСП1
             formReport.Show();
         }
 
+        // Таблица движение студентов
         private void dataGridViewMovement_SelectionChanged(object sender, EventArgs e)
         {
             if (dataGridViewMovement.SelectedRows.Count > 0)
             {
                 var row = dataGridViewMovement.SelectedRows[0];
-
                 string fio = row.Cells["ФИО студента"].Value?.ToString() ?? "Неизвестно";
                 string idStr = row.Cells["Номер студенческого"].Value?.ToString();
-
                 if (long.TryParse(idStr, out long studentId))
                 {
                     label5.Text = $"Приказы студента: {fio} (№ {studentId})";
                     DataTable dt = controller.GetAllOrdersByStudent(studentId);
                     dataGridViewMoveStud.DataSource = dt;
+                    toolStripLabel1.Text = $"Количесвто записей: {dt.Rows.Count}";
                 }
                 else
                 {
@@ -494,6 +493,29 @@ namespace Карпова_КП_РКИС_23ИСП1
             {
                 MessageBox.Show("Ошибка при зачислении:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // Выход из программы
+        private void выходToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Вы уверены, что хотите выйти из программы?",
+                        "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        }
+
+        // Справка
+        private void справкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string about = "Подсистема учёта движения студентов\n\n" +
+                   "Версия: 1.0\n" +
+                   "Дата выпуска: ноябрь 2025\n" +
+                   "Разработчик: Карпова Анна Сергеевна\n" +
+                   "Группа 23ИСП1\n" +
+                   "Орский гуманитарно-технологический институт (филиал) ОГУ\n\n" +
+                   "GitHub: https://github.com/Vims44/student-movement";
+            MessageBox.Show(about, "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

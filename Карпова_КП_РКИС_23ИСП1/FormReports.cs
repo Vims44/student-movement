@@ -10,6 +10,12 @@ using System.Windows.Forms;
 using System.Data.SQLite;
 using Карпова_КП_РКИС_23ИСП1.Controller;
 using System.Windows.Forms.DataVisualization.Charting;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.Kernel.Font;
+using iText.IO.Font;
 
 namespace Карпова_КП_РКИС_23ИСП1
 {
@@ -234,7 +240,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             e.Handled = true;
         }
 
-        // УНИВЕРСАЛЬНАЯ ФУНКЦИЯ — ставит ровно ОДИН красивый заголовок сверху
+        // Один заголовок сверху
         private void SetChartTitle(Chart chart, string titleText)
         {
             chart.Titles.Clear();

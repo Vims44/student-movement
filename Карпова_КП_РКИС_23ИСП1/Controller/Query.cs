@@ -39,6 +39,21 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             return buferTable;
         }
 
+        // Перегрузка Total с параметрами 
+        public DataTable Total(string sql, params (string name, object value)[] parameters)
+        {
+            var dt = new DataTable();
+            using (var cmd = new SQLiteCommand(sql, connection))
+            {
+                foreach (var p in parameters)
+                    cmd.Parameters.AddWithValue(p.name, p.value ?? DBNull.Value);
+
+                using (var adapter = new SQLiteDataAdapter(cmd))
+                    adapter.Fill(dt);
+            }
+            return dt;
+        }
+
         // Добавление/Редактирование статуса
         public void ModifyStatus(int mode, string newValue, string oldValue = "")
         {
@@ -238,7 +253,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             }
         }
 
-        // Поиск студентов с фильтрами (все параметры опциональные)
+        // Поиск студентов с фильтрами 
         public DataTable StudentSearch(
             string fio = null,
             string status = null,
@@ -250,7 +265,6 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             int? age = null)
         {
             buferTable = new DataTable();
-
             string baseQuery = $@"SELECT
                                 s.Nom_stud AS 'Номер',
                                 s.FIO AS 'ФИО',
@@ -322,19 +336,14 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             // Курс
             if (course.HasValue)
             {
-                conditions.Add($@"
-        (strftime('%Y','now') - g.God_post + 
+                conditions.Add($@"(strftime('%Y','now') - g.God_post + 
          CASE WHEN strftime('%m','now') >= '09' THEN 1 ELSE 0 END) = @course");
                 parameters.Add("@course", course.Value);
             }
 
             // Финальный запрос
-            string whereClause = conditions.Count > 0
-                ? "WHERE " + string.Join(" AND ", conditions)
-                : "";
-
+            string whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : "";
             string finalQuery = baseQuery + " " + whereClause + " ORDER BY s.FIO";
-
             using (var cmd = new SQLiteCommand(finalQuery, connection))
             {
                 foreach (var p in parameters)
@@ -343,7 +352,6 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 dataAdapter = new SQLiteDataAdapter(cmd);
                 dataAdapter.Fill(buferTable);
             }
-
             return buferTable;
         }
 
@@ -366,7 +374,6 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             return items;
         }
 
-
         // ПРИКАЗЫ
         // Добавление нового приказа
         public long AddOrder(string orderType, DateTime orderDate, string comment = "")
@@ -379,6 +386,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 ("@date", orderDate.ToString("yyyy-MM-dd")),
                 ("@comment", string.IsNullOrWhiteSpace(comment) ? (object)DBNull.Value : comment));
         }
+
         // Редактирование существующего приказа
         public void UpdateOrder(long orderId, string orderType, DateTime orderDate, string comment = "")
         {
@@ -415,7 +423,6 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             ExecuteNonQuery(sql, ("@id", orderId));
         }
 
-
         // Получение студентов по идентификатору приказа
         public DataTable GetStudentsByOrder(long orderId)
         {
@@ -438,8 +445,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             return buferTable;
         }
 
-
-        // НОВЫЙ метод: все приказы конкретного студента
+        // Метод получения приказов конкретного студента
         public DataTable GetAllOrdersByStudent(long studentId)
         {
             buferTable = new DataTable();
@@ -462,16 +468,12 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             return buferTable;
         }
 
-       
-
-
         /*ЗАЧИСЛЕНИЕ АБИТУРИЕНТА*/
-        // 1. Получение данных абитуриента для зачисления
+        // Получение данных абитуриента для зачисления
         public DataTable GetApplicantForEnroll(long applicantId)
         {
             buferTable = new DataTable();
-            string sql = @"
-                SELECT 
+            string sql = @"SELECT 
                     a.FIO, 
                     a.Date_birthday, 
                     a.Address, 
@@ -493,7 +495,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             return buferTable;
         }
 
-        // 2. Создание группы, если её нет
+        // Создание группы, если её нет
         public void EnsureGroupExists(string groupCode, int year, string shifrSpec)
         {
             string check = "SELECT COUNT(*) FROM [Group] WHERE Shifr_gr = @code";
@@ -511,7 +513,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                         term = cmdTerm.ExecuteScalar()?.ToString() ?? "3 года 10 месяцев";
                     }
                     // Счёт года окончания
-                    int yearsToAdd = 4; // по умолчанию (3 г. 10 мес → +4 учебных года)
+                    int yearsToAdd = 4; // по умолчанию (3 г. 10 мес - +4 учебных года)
                     if (!string.IsNullOrWhiteSpace(term))
                     {
                         term = term.ToLower().Replace("года", "").Replace("год", "").Replace("лет", "").Trim();
@@ -537,7 +539,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 }
             }
         }
-        // Добавление студента (с годом поступления!)
+        // Добавление студента 
         public long AddStudentFromApplicant(string fio, string birth, string addr, string phone,
                                     string groupCode, double avgScore)
         {
@@ -559,10 +561,8 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 ("@score", avgScore));
         }
 
-
-
         // ВЫПУСК СТУДЕНТОВ 
-        // Проверка: можно ли выпустить студента (не является ли он уже выпускником)
+        // Проверка: является ли студент выпускником
         public bool CanGraduateStudent(long studentId)
         {
             string sql = "SELECT Nazv_statusa FROM Student WHERE Nom_stud = @id";
@@ -574,6 +574,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             }
         }
 
+        // Возвращает следующий номер приказа о выпуске за указанный год
         public int GetNextGraduateOrderNumber(int year)
         {
             string sql = @"SELECT COUNT(*) FROM Orders 
@@ -588,7 +589,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             }
         }
 
-        // Основной метод: выпуск студентов (с защитой от пустого приказа)
+        // Метод выпуск студентов 
         public (long OrderId, int Graduated, int Skipped) GraduateStudents(
             IEnumerable<long> studentIds,
             DateTime graduateDate)
@@ -607,13 +608,10 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             if (toGraduate.Count == 0)
                 return (0, 0, skipped);
 
-            // Используем новый метод!
             int orderNum = GetNextGraduateOrderNumber(graduateDate.Year);
             string orderNumber = $"{orderNum}-В";
             string comment = $"Выпуск {toGraduate.Count} студ. Приказ № {orderNumber} от {graduateDate:dd.MM.yyyy}";
-
             long orderId = AddOrder("Об окончании обучения", graduateDate, comment);
-
             using (var transaction = connection.BeginTransaction())
             {
                 foreach (long studentId in toGraduate)
@@ -632,9 +630,88 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                 }
                 transaction.Commit();
             }
-
             return (orderId, toGraduate.Count, skipped);
         }
+
+        // ИЗМЕНЕНИЕ СТАТУСА СТУДЕНТА
+        // Информация о студенте
+        public DataTable GetStudentInfo(long studentId)
+        {
+            string sql = @"
+        SELECT FIO, Data_rojd, Shifr_gr, Nazv_statusa
+        FROM Student
+        WHERE Nom_stud = @id";
+
+            return Total(sql, ("@id", studentId));
+        }
+
+        // Все статусы
+        public DataTable GetAllStatuses()
+        {
+            return Total("SELECT Nazv_statusa FROM Status ORDER BY Nazv_statusa");
+        }
+
+        // Список приказа для выбора
+        public DataTable GetOrdersForComboBox(string filterType = null)
+        {
+            string sql = @"
+        SELECT
+            Order_ID AS Value,
+            (Order_Type || ' от ' || date(Order_Date, 'localtime') ||
+             CASE 
+                 WHEN Comment IS NULL OR Comment = '' THEN ''
+                 WHEN Comment = 'Изменение статуса' THEN ''
+                 ELSE ' — ' || Comment 
+             END) AS Text
+        FROM Orders
+        WHERE Order_Type IS NOT NULL 
+          AND Order_Type != ''
+          " + (filterType != null ? "AND Order_Type LIKE @filter" : "") + @"
+        ORDER BY Order_Date DESC";
+
+            var dt = new DataTable();
+            using (var cmd = new SQLiteCommand(sql, connection))
+            {
+                if (filterType != null)
+                    cmd.Parameters.AddWithValue("@filter", $"%{filterType}%");
+
+                using (var adapter = new SQLiteDataAdapter(cmd))
+                    adapter.Fill(dt);
+            }
+            return dt;
+        }
+
+        // Последний сохданный приказ
+        public long GetLastOrderId()
+        {
+            var result = Total("SELECT MAX(Order_ID) AS LastID FROM Orders");
+            if (result.Rows.Count > 0 && result.Rows[0]["LastID"] != DBNull.Value)
+                return Convert.ToInt64(result.Rows[0]["LastID"]);
+            return -1;
+        }
+
+        // Изменение статуса студента (движение + обновление)
+        public void ChangeStudentStatus(long studentId, long orderId, string newStatus, DateTime effectiveDate)
+        {
+            using (var transaction = connection.BeginTransaction())
+            {
+                // Движение
+                ExecuteNonQuery(@"
+            INSERT INTO Student_movement (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
+            VALUES (@sid, @oid, @action, @date)",
+                    ("@sid", studentId),
+                    ("@oid", orderId),
+                    ("@action", newStatus),
+                    ("@date", effectiveDate));
+
+                // Обновление текущего статуса
+                ExecuteNonQuery(@"UPDATE Student SET Nazv_statusa = @status WHERE Nom_stud = @id",
+                    ("@status", newStatus),
+                    ("@id", studentId));
+
+                transaction.Commit();
+            }
+        }    
     }
 }
 
