@@ -569,7 +569,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             using (var cmd = new SQLiteCommand(sql, connection))
             {
                 cmd.Parameters.AddWithValue("@id", studentId);
-                var status = cmd.ExecuteScalar()?.ToString();
+                var status = cmd.ExecuteScalar()?.ToString(); // Возвращает только одно значение (статус)
                 return status != "Выпускник";
             }
         }
@@ -616,6 +616,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
             {
                 foreach (long studentId in toGraduate)
                 {
+                    // Запись в историю движения
                     ExecuteNonQuery(
                         @"INSERT INTO Student_movement 
                           (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
@@ -624,6 +625,7 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
                         ("@order", orderId),
                         ("@date", graduateDate));
 
+                    // Изменение статуса студента
                     ExecuteNonQuery(
                         "UPDATE Student SET Nazv_statusa = 'Выпускник' WHERE Nom_stud = @id",
                         ("@id", studentId));
@@ -711,7 +713,35 @@ namespace Карпова_КП_РКИС_23ИСП1.Controller
 
                 transaction.Commit();
             }
-        }    
+        }
+
+
+        // Перевод студента в другую группу
+        public void TranslateStudent(long studentId, long orderId, string newGroup, DateTime effectiveDate)
+        {
+            using (var transaction = connection.BeginTransaction())
+            {
+                // Записываем в движение
+                ExecuteNonQuery(@"
+            INSERT INTO Student_movement (Student_ID, Order_ID, Order_Action, Order_Effective_Date)
+            VALUES (@sid, @oid, @action, @date)",
+                    ("@sid", studentId),
+                    ("@oid", orderId),
+                    ("@action", $"Переведён в группу {newGroup}"),
+                    ("@date", effectiveDate));
+
+                // Меняем группу у студента
+                ExecuteNonQuery("UPDATE Student SET Shifr_gr = @group WHERE Nom_stud = @id",
+                    ("@group", newGroup),
+                    ("@id", studentId));
+
+                // Меняем статус на "Переведён"
+                ExecuteNonQuery("UPDATE Student SET Nazv_statusa = 'Переведён' WHERE Nom_stud = @id",
+                    ("@id", studentId));
+
+                transaction.Commit();
+            }
+        }
     }
 }
 

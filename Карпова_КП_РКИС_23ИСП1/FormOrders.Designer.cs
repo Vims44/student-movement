@@ -68,7 +68,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(9, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1556, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1556, 30);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -79,7 +79,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.редактироватьПриказToolStripMenuItem,
             this.удалитьПриказToolStripMenuItem});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
-            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(74, 24);
+            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(74, 26);
             this.правкаToolStripMenuItem.Text = "Правка";
             // 
             // добавитьПриказToolStripMenuItem
@@ -109,16 +109,16 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.toolStripOrders.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStripOrders.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabelOrders});
-            this.toolStripOrders.Location = new System.Drawing.Point(0, 755);
+            this.toolStripOrders.Location = new System.Drawing.Point(0, 749);
             this.toolStripOrders.Name = "toolStripOrders";
-            this.toolStripOrders.Size = new System.Drawing.Size(1556, 25);
+            this.toolStripOrders.Size = new System.Drawing.Size(1556, 31);
             this.toolStripOrders.TabIndex = 2;
             this.toolStripOrders.Text = "toolStrip1";
             // 
             // toolStripLabelOrders
             // 
             this.toolStripLabelOrders.Name = "toolStripLabelOrders";
-            this.toolStripLabelOrders.Size = new System.Drawing.Size(111, 22);
+            this.toolStripLabelOrders.Size = new System.Drawing.Size(111, 28);
             this.toolStripLabelOrders.Text = "toolStripLabel1";
             // 
             // dataGridViewStud
@@ -147,9 +147,9 @@ namespace Карпова_КП_РКИС_23ИСП1
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(8, 446);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(263, 20);
+            this.label2.Size = new System.Drawing.Size(156, 20);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Студенты с данным приказом";
+            this.label2.Text = "Выберите приказ";
             // 
             // FormOrders
             // 

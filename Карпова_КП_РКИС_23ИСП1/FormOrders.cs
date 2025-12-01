@@ -33,6 +33,8 @@ namespace Карпова_КП_РКИС_23ИСП1
         {
             this.WindowState = FormWindowState.Maximized;
             FillTableOrders();
+            label2.Text = "Выберите приказ";
+            toolStripOrders.Text = "Количество студентов в приказе: 0";
         }
 
         // Метод заполнения таблицы приказы
@@ -136,6 +138,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                 // Если ничего не выбрано
                 dataGridViewStud.DataSource = null;
                 toolStripOrders.Text = "Количество студентов в приказе: 0";
+                label2.Text = "Выберите приказ";
             }
         }
 
@@ -145,6 +148,26 @@ namespace Карпова_КП_РКИС_23ИСП1
             DataTable dt = controller.GetStudentsByOrder(orderId);
             dataGridViewStud.DataSource = dt;
             toolStripOrders.Text = $"Количество студентов в приказе: {dt.Rows.Count}";
+
+            // Проверяем, есть ли текущая строка в верхней таблице
+            if (dataGridViewOrders.CurrentRow != null)
+            {
+                var row = dataGridViewOrders.CurrentRow;
+                string type = row.Cells["Тип приказа"].Value?.ToString() ?? "Приказ";
+                string dateStr = row.Cells["Дата приказа"].Value?.ToString() ?? "";
+                string comment = row.Cells["Комментарий"].Value?.ToString() ?? "";
+
+                DateTime date = DateTime.Parse(dateStr);
+                string number = "б/н";
+                var match = System.Text.RegularExpressions.Regex.Match(comment, @"№\s*([0-9]+-[ВЗОA]+)");
+                if (match.Success)
+                    number = match.Groups[1].Value;
+                label2.Text = $"Студенты по приказу «{type} № {number} от {date:dd.MM.yyyy}»";
+            }
+            else
+            {
+                label2.Text = "Выберите приказ";
+            }
         }
     }
 }

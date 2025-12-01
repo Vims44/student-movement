@@ -280,6 +280,7 @@ namespace Карпова_КП_РКИС_23ИСП1
         // Кнопка выпуск
         private void buttonGraduate_Click(object sender, EventArgs e)
         {
+            // Проверка выделен ли студент
             if (dataGridViewStudents.SelectedRows.Count == 0 && dataGridViewStudents.SelectedCells.Count == 0)
             {
                 MessageBox.Show("Выделите хотя бы одного студента!", "Внимание",
@@ -287,7 +288,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                 return;
             }
 
-            var selectedIds = new HashSet<long>();
+            var selectedIds = new HashSet<long>(); // Список без повторений
             foreach (DataGridViewRow row in dataGridViewStudents.SelectedRows)
                 if (long.TryParse(row.Cells["Номер"].Value?.ToString(), out long id))
                     selectedIds.Add(id);
@@ -302,11 +303,20 @@ namespace Карпова_КП_РКИС_23ИСП1
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            DateTime today = DateTime.Today;
+            DialogResult confirm = MessageBox.Show(
+                $"Вы уверены, что хотите выпустить {selectedIds.Count} студент(а/ов)?\n\n" +
+                $"Дата выпуска: {today:dd MMMM yyyy} г.\n" +
+                $"Статус будет изменён на «Выпускник»\n",
+                "Подтверждение выпуска студентов",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes) return; 
 
             try
             {
-                DateTime today = DateTime.Today;
-
                 var result = controller.GraduateStudents(selectedIds, today);
 
                 FillTableStudents();
@@ -323,7 +333,7 @@ namespace Карпова_КП_РКИС_23ИСП1
                     return;
                 }
 
-                // Номер приказа — берём через метод (гарантированно правильный)
+                // Номер приказа 
                 int orderNum = controller.GetNextGraduateOrderNumber(today.Year);
 
                 MessageBox.Show(
@@ -373,6 +383,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             {
                 label5.Text = "Выберите запись выше";
                 dataGridViewMoveStud.DataSource = null;
+                toolStripLabel1.Text = "Количество записей: 0";
             }
         }
 

@@ -23,17 +23,34 @@ namespace Карпова_КП_РКИС_23ИСП1
             InitializeComponent();
             this.studentId = long.Parse(nomStud);
             controller = new Query(AppSetting.ConnStr);
+
             LoadStudentInfo();
             LoadStatuses();
-            LoadOrdersComboBox(); // Загрузка приказов
+            LoadGroups();                   
+            LoadOrdersComboBox();
+
             dateTimePickerChange.Value = DateTime.Today;
+
+            // Скрываем выбор группы при старте
+            comboBoxNewGroup.Visible = false;
+            labelNewGroup.Visible = false;
+
+            comboBoxStatus.SelectedIndexChanged += comboBoxStatus_SelectedIndexChanged;
         }
 
+        // Загрузка групп
+        private void LoadGroups()
+        {
+            var groups = controller.GetComboBoxItems("Group", "Shifr_gr");
+            comboBoxNewGroup.Items.Clear();
+            foreach (string group in groups)
+                comboBoxNewGroup.Items.Add(group);
+        }
         // Загрузка информации о студентах
         private void LoadStudentInfo()
         {
             var dt = controller.GetStudentInfo(studentId);
-            if (dt.Rows.Count == 0) return;
+            if (dt.Rows.Count == 0) return; // Студент не найден
 
             var row = dt.Rows[0];
             labelfio.Text = "ФИО студента: " + row["FIO"];
@@ -42,7 +59,7 @@ namespace Карпова_КП_РКИС_23ИСП1
             comboBoxStatus.Text = row["Nazv_statusa"].ToString();
         }
 
-        // Загрузка статусов
+        // Загрузка статусов в комбобокс
         private void LoadStatuses()
         {
             comboBoxStatus.Items.Clear();
@@ -76,20 +93,38 @@ namespace Карпова_КП_РКИС_23ИСП1
                 MessageBox.Show("Выберите новый статус!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            string newStatus = comboBoxStatus.SelectedItem.ToString();
+
+            // Если перевод — проверяем группу
+            if (newStatus == "Переведён")
+            {
+                if (comboBoxNewGroup.SelectedItem == null)
+                {
+                    MessageBox.Show("Выберите группу для перевода!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
             if (selectedOrderId <= 0)
             {
-                MessageBox.Show("Выберите или создайте приказ-основание!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите или создайте приказ!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            string newStatus = comboBoxStatus.SelectedItem.ToString();
-            DateTime date = dateTimePickerChange.Value;
-
             try
             {
-                controller.ChangeStudentStatus(studentId, selectedOrderId, newStatus, date);
+                if (newStatus == "Переведён")
+                {
+                    string newGroup = comboBoxNewGroup.SelectedItem.ToString();
+                    controller.TranslateStudent(studentId, selectedOrderId, newGroup, dateTimePickerChange.Value);
+                }
+                else
+                {
+                    controller.ChangeStudentStatus(studentId, selectedOrderId, newStatus, dateTimePickerChange.Value);
+                }
 
-                MessageBox.Show($"Статус успешно изменён на «{newStatus}»!", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Действие выполнено успешно!", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -105,6 +140,10 @@ namespace Карпова_КП_РКИС_23ИСП1
             e.Handled = true;
         }
         private void comboBoxOrder_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void comboBoxNewGroup_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
@@ -137,6 +176,23 @@ namespace Карпова_КП_РКИС_23ИСП1
             else
             {
                 selectedOrderId = -1;
+            }
+        }
+
+        // Комбобокс статус
+        private void comboBoxStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxStatus.SelectedItem?.ToString() == "Переведён")
+            {
+                labelNewGroup.Visible = true;
+                comboBoxNewGroup.Visible = true;
+                comboBoxNewGroup.DroppedDown = true;
+                lblGroup.Visible = false;
+            }
+            else
+            {
+                labelNewGroup.Visible = false;
+                comboBoxNewGroup.Visible = false;
             }
         }
     }
